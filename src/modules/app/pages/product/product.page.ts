@@ -1,7 +1,7 @@
 import ProductLocator from "./product.locator";
-import Element from "../../../../base/objects/Element";
+import Element from "@base/objects/Element";
 import ProductScenario from "./product.scenario";
-import BaseAppPage from "../../base/base-app-page";
+import BaseAppPage from "@modules/app/base/base-app-page";
 
 export default class ProductPage extends BaseAppPage implements ProductScenario {
     pageUrl = (): string => this.urls.get.inventory.inventoryUrl;

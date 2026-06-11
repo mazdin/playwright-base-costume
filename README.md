@@ -1,6 +1,6 @@
-# AT_TEMPLATE — Playwright OOP Framework
+# AT_WEB_SAUCEDEMO — Playwright OOP Framework
 
-Template automation testing berbasis Playwright + TypeScript dengan pattern **Page Object Model (POM)** dan **Dependency Injection**.
+Automation testing untuk [SauceDemo](https://www.saucedemo.com) berbasis Playwright + TypeScript dengan pattern **Page Object Model (POM)** dan **Dependency Injection**.
 
 ---
 
@@ -9,112 +9,103 @@ Template automation testing berbasis Playwright + TypeScript dengan pattern **Pa
 | Tool | Versi |
 |------|-------|
 | Node.js | v20.x |
-| Playwright | ^1.45.2 |
-| TypeScript | via @types/node |
-| MySQL2 | ^3.15.3 |
-| Allure | ^3.4.4 |
+| Playwright | ^1.45 |
+| TypeScript | ^6.0 |
+| ESLint + eslint-plugin-playwright | ^10 / ^2 |
+| Allure | ^3.4 |
 
 ---
 
 ## Struktur Folder
 
 ```
-AT_TEMPLATE/
+AT_WEB_SAUCEDEMO_1/
 ├── src/
-│   ├── base/                        # Core framework — JANGAN diubah
-│   │   ├── base-page.ts             # Abstract class utama dengan semua method Playwright
-│   │   ├── base-locator.ts          # Base class untuk semua locator
+│   ├── base/                        # Core framework (generik, app-agnostic)
+│   │   ├── base-page.ts             # Abstract class: aksi, assertion, navigasi
 │   │   ├── base-scenario.ts         # Interface shouldHave()
 │   │   ├── base-url.ts              # Abstract class URL
 │   │   ├── base-configs.ts          # Abstract class konfigurasi
-│   │   ├── extentions.ts            # String extensions
-│   │   ├── constants/
-│   │   │   └── Keyboard.ts          # Enum keyboard keys
-│   │   ├── objects/
-│   │   │   └── Element.ts           # Element validation class
-│   │   └── utils/
-│   │       ├── helper.ts            # Utility functions
-│   │       ├── logger.ts            # Logger
-│   │       └── DateHelper.ts        # Date utilities
+│   │   ├── constants/Keyboard.ts    # Enum keyboard keys
+│   │   └── objects/Element.ts       # Element validation class
 │   │
-│   ├── configs/
-│   │   └── app/
-│   │       ├── app-urls.ts          # URL mapping aplikasi
-│   │       └── app-configs.ts       # Konfigurasi aplikasi
+│   ├── configs/app/
+│   │   ├── app-urls.ts              # URL mapping aplikasi
+│   │   └── app-configs.ts           # Konfigurasi aplikasi
 │   │
-│   └── modules/
-│       └── app/                     # Ganti "app" dengan nama modul Anda
-│           ├── base/
-│           │   └── base-app-page.ts # Base page spesifik aplikasi
-│           ├── app-pages.ts         # Type definitions semua pages
-│           └── pages/
-│               └── login/           # Contoh modul login
-│                   ├── login.locator.ts
-│                   ├── login.page.ts
-│                   └── login.scenario.ts
+│   ├── data/                        # Test data terpusat
+│   │   ├── users.ts                 # Kredensial user SauceDemo
+│   │   ├── products.ts              # Nama produk & ekspektasi sorting
+│   │   └── checkout-data.ts         # Data form checkout & tax rate
+│   │
+│   └── modules/app/
+│       ├── base/base-app-page.ts    # Base page spesifik aplikasi
+│       ├── app-pages.ts             # Type definitions semua pages
+│       └── pages/                   # login / inventory / product / cart / checkout
+│           └── <fitur>/
+│               ├── <fitur>.locator.ts
+│               ├── <fitur>.page.ts
+│               └── <fitur>.scenario.ts
 │
 ├── tests/
+│   ├── auth.setup.ts                # Login sekali → simpan session ke .auth/user.json
 │   └── app/
 │       ├── injection.ts             # Dependency injection (fixtures)
-│       └── loginTC/
-│           └── login.spec.ts        # Contoh test spec
+│       └── <fitur>/<fitur>.spec.ts  # login / inventory / product / cart / checkout / security
 │
+├── docs/                            # Dokumen test suite (xlsx)
+├── .github/workflows/playwright.yml # CI: typecheck → lint → test
 ├── .env-example                     # Template environment variables
-├── .gitignore
-├── package.json
+├── eslint.config.mjs
 ├── playwright.config.ts
-└── README.md
+└── tsconfig.json                    # Termasuk path aliases (@base, @data, dst)
+```
+
+### Path Aliases
+
+Import memakai alias, bukan relative path dalam:
+
+| Alias | Folder |
+|-------|--------|
+| `@base/*` | `src/base/*` |
+| `@configs/*` | `src/configs/*` |
+| `@modules/*` | `src/modules/*` |
+| `@data/*` | `src/data/*` |
+
+### Autentikasi (storageState)
+
+Project `setup` ([tests/auth.setup.ts](tests/auth.setup.ts)) login sekali via UI lalu menyimpan session ke `.auth/user.json`. Semua spec lain mulai dalam keadaan **sudah login** — tidak perlu login per test. Spec yang butuh state tanpa login (login, security) memakai:
+
+```typescript
+test.use({ storageState: NO_AUTH_STATE });
 ```
 
 ---
 
-## Setup Project Baru
-
-### 1. Clone / Copy template ini
-
-```bash
-cp -r AT_TEMPLATE nama-project-baru
-cd nama-project-baru
-```
-
-### 2. Install dependencies
+## Setup
 
 ```bash
 npm install
 npx playwright install chromium
+cp .env-example .env   # lalu sesuaikan bila perlu
 ```
 
-### 3. Setup environment variables
+## Menjalankan Test
 
 ```bash
-cp .env-example .env
-# Edit .env sesuai environment Anda
+npm test                              # semua test
+npx playwright test tests/app/login/  # satu fitur
+npm run test:headed                   # buka browser
+npm run test:ui                       # UI mode
+npm run typecheck                     # cek tipe TypeScript
+npm run lint                          # ESLint
 ```
 
-### 4. Jalankan test
+## Report
 
 ```bash
-# Semua test
-npx playwright test
-
-# Test spesifik
-npx playwright test tests/app/loginTC/
-
-# Mode headed (buka browser)
-npx playwright test --headed
-
-# Dengan UI mode
-npx playwright test --ui
-```
-
-### 5. Lihat report
-
-```bash
-# Playwright HTML report
-npx playwright show-report
-
-# Allure report
-allure serve allure-results
+npm run report          # Playwright HTML report
+npm run allure:serve    # Allure report
 ```
 
 ---
@@ -125,9 +116,7 @@ allure serve allure-results
 
 ```typescript
 // src/modules/app/pages/namaPage/namaPage.locator.ts
-import BaseLocator from "../../../../base/base-locator";
-
-export default class NamaPageLocator extends BaseLocator {
+export default class NamaPageLocator {
     static buttonSave: string = '#btn-save';
     static inputName: string = '#name';
 }
@@ -137,7 +126,7 @@ export default class NamaPageLocator extends BaseLocator {
 
 ```typescript
 // src/modules/app/pages/namaPage/namaPage.scenario.ts
-import BaseScenario from "../../../../base/base-scenario";
+import BaseScenario from "@base/base-scenario";
 
 export default interface NamaPageScenario extends BaseScenario {
     performSave(): Promise<void>;
@@ -148,10 +137,10 @@ export default interface NamaPageScenario extends BaseScenario {
 
 ```typescript
 // src/modules/app/pages/namaPage/namaPage.page.ts
-import BaseAppPage from "../../base/base-app-page";
+import BaseAppPage from "@modules/app/base/base-app-page";
 import NamaPageLocator from "./namaPage.locator";
 import NamaPageScenario from "./namaPage.scenario";
-import Element from "../../../../base/objects/Element";
+import Element from "@base/objects/Element";
 
 export default class NamaPage extends BaseAppPage implements NamaPageScenario {
     pageUrl = (): string => this.urls.get.namaPage.url;
@@ -169,34 +158,25 @@ export default class NamaPage extends BaseAppPage implements NamaPageScenario {
 }
 ```
 
-### Step 4 — Daftarkan di app-pages.ts
+### Step 4 — Daftarkan di app-pages.ts dan injection.ts
 
 ```typescript
 // src/modules/app/app-pages.ts
-import NamaPage from "./pages/namaPage/namaPage.page";
-
 export type AppPages = {
     loginPage: LoginPage;
     namaPage: NamaPage;   // tambahkan ini
 };
-```
 
-### Step 5 — Daftarkan di injection.ts
-
-```typescript
 // tests/app/injection.ts
-import NamaPage from "../../src/modules/app/pages/namaPage/namaPage.page";
-
 export const test = base.extend<AppPages>({
-    loginPage: async ({ page }, use) => await use(new LoginPage(page)),
-    namaPage: async ({ page }, use) => await use(new NamaPage(page)),  // tambahkan ini
+    namaPage: async ({ page }, use) => await use(new NamaPage(page)),
 });
 ```
 
-### Step 6 — Tulis test spec
+### Step 5 — Tulis test spec
 
 ```typescript
-// tests/app/namaPageTC/namaPage.spec.ts
+// tests/app/namaPage/namaPage.spec.ts
 import { test } from "../injection";
 
 test.describe("Nama Page Feature", () => {
@@ -205,6 +185,8 @@ test.describe("Nama Page Feature", () => {
     });
 });
 ```
+
+> Test data (kredensial, nama produk, data form) jangan di-hardcode di page object atau spec — letakkan di `src/data/`.
 
 ---
 
@@ -217,21 +199,4 @@ test.describe("Nama Page Feature", () => {
 | `Element.of("#input", "value")` | Cek input memiliki value |
 | `Element.ofButton("Simpan")` | Cek button enabled |
 | `Element.ofButton("Simpan", false)` | Cek button disabled |
-| `Element.ofInput("#input", "label")` | Cek input visible |
-
----
-
-## Database (MySQL)
-
-```typescript
-// Gunakan method sqlExecute dari BasePage
-const result = await this.sqlExecute(
-    {
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: process.env.DB_NAME,
-    },
-    "SELECT * FROM users WHERE email = 'test@example.com'"
-);
-```
+| `Element.ofInput("#input", "")` | Cek input visible |

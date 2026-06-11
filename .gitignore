@@ -8,5 +8,6 @@ node_modules/
 /allure-results/
 /junit-report/
 /.cache/
+/.auth/
 .env
 *.g.ts

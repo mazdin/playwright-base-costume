@@ -1,4 +1,4 @@
-import BaseScenario from "../../../../base/base-scenario";
+import BaseScenario from "@base/base-scenario";
 
 export default interface CartScenario extends BaseScenario {
     performContinueShopping(): Promise<void>;

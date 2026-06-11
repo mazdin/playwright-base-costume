@@ -1,15 +1,13 @@
 import { test } from "../injection";
 import { epic, feature, story, severity, description, tag, step } from "allure-js-commons";
-import InventoryLocator from "../../../src/modules/app/pages/inventory/inventory.locator";
 
 test.describe("Cart Feature", () => {
-    test.beforeEach(async ({ loginPage, inventoryPage }) => {
+    test.beforeEach(async ({ inventoryPage }) => {
         await epic("SauceDemo");
         await feature("Cart");
-        await loginPage.navigateHere();
-        await loginPage.performLogin();
-        await inventoryPage.click(InventoryLocator.addToCartBackpack);
-        await inventoryPage.click(InventoryLocator.cartIcon);
+        await inventoryPage.navigateHere();
+        await inventoryPage.addItemToCart();
+        await inventoryPage.goToCart();
     });
 
     test("CRT-01 | Navigasi kembali ke belanja", async ({ cartPage }) => {

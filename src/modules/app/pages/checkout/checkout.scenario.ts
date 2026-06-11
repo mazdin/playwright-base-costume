@@ -1,8 +1,8 @@
-import BaseScenario from "../../../../base/base-scenario";
+import BaseScenario from "@base/base-scenario";
+import { CheckoutInfo } from "@data/checkout-data";
 
 export default interface CheckoutScenario extends BaseScenario {
-    performFillInfo(firstName: string, lastName: string, postalCode: string): Promise<void>;
+    performFillInfo(info: CheckoutInfo): Promise<void>;
     performEmptyInfoContinue(): Promise<void>;
-    performWhitespaceInfoContinue(): Promise<void>;
     performVerifyTax(): Promise<void>;
 }

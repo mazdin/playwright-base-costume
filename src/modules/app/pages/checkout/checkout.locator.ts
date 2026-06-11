@@ -1,6 +1,4 @@
-import BaseLocator from "../../../../base/base-locator";
-
-export default class CheckoutLocator extends BaseLocator {
+export default class CheckoutLocator {
     // Step One - Info form
     static firstNameInput: string = '#first-name';
     static lastNameInput: string = '#last-name';

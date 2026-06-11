@@ -1,8 +1,9 @@
 import { expect } from "@playwright/test";
 import InventoryLocator from "./inventory.locator";
-import Element from "../../../../base/objects/Element";
+import Element from "@base/objects/Element";
 import InventoryScenario from "./inventory.scenario";
-import BaseAppPage from "../../base/base-app-page";
+import BaseAppPage from "@modules/app/base/base-app-page";
+import { SORT_EXPECTATIONS } from "@data/products";
 
 export default class InventoryPage extends BaseAppPage implements InventoryScenario {
     pageUrl = (): string => this.urls.get.inventory.inventoryUrl;
@@ -14,33 +15,42 @@ export default class InventoryPage extends BaseAppPage implements InventoryScena
         ];
     }
 
-    async performAddToCart(): Promise<void> {
+    async addItemToCart(): Promise<void> {
         await this.click(InventoryLocator.addToCartBackpack);
+    }
+
+    async goToCart(): Promise<void> {
+        await this.click(InventoryLocator.cartIcon);
+        await this.waitForUrl(this.urls.get.cart.cartUrl);
+    }
+
+    async performAddToCart(): Promise<void> {
+        await this.addItemToCart();
         await this.expectVisible(InventoryLocator.cartBadge);
         await this.expectTextVisible("1", true);
     }
 
     async performRemoveFromCart(): Promise<void> {
-        await this.click(InventoryLocator.addToCartBackpack);
+        await this.addItemToCart();
         await this.expectVisible(InventoryLocator.cartBadge);
         await this.click(InventoryLocator.removeBackpack);
         await this.expectInvisible(InventoryLocator.cartBadge);
     }
 
     async performSortZtoA(): Promise<void> {
-        await this._page.selectOption(InventoryLocator.sortDropdown, 'za');
-        const firstName = await this._page.locator(InventoryLocator.itemName).first().innerText();
-        expect(firstName).toBe("Test.allTheThings() T-Shirt (Red)");
+        await this.selectOption(InventoryLocator.sortDropdown, 'za');
+        await expect(this.getLocator(InventoryLocator.itemName).first())
+            .toHaveText(SORT_EXPECTATIONS.firstNameZtoA);
     }
 
     async performSortLowToHigh(): Promise<void> {
-        await this._page.selectOption(InventoryLocator.sortDropdown, 'lohi');
-        const firstPrice = await this._page.locator(InventoryLocator.itemPrice).first().innerText();
-        expect(firstPrice).toBe("$7.99");
+        await this.selectOption(InventoryLocator.sortDropdown, 'lohi');
+        await expect(this.getLocator(InventoryLocator.itemPrice).first())
+            .toHaveText(SORT_EXPECTATIONS.lowestPrice);
     }
 
     async performCheckProductImages(): Promise<void> {
-        const images = await this._page.locator(InventoryLocator.itemImage).all();
+        const images = await this.getLocator(InventoryLocator.itemImage).all();
         expect(images.length).toBeGreaterThan(0);
         for (const img of images) {
             await expect(img).toBeVisible();
@@ -48,7 +58,7 @@ export default class InventoryPage extends BaseAppPage implements InventoryScena
     }
 
     async performResetAppState(): Promise<void> {
-        await this.click(InventoryLocator.addToCartBackpack);
+        await this.addItemToCart();
         await this.expectVisible(InventoryLocator.cartBadge);
         await this.click(InventoryLocator.burgerMenu);
         await this.click(InventoryLocator.resetAppState);
@@ -57,7 +67,13 @@ export default class InventoryPage extends BaseAppPage implements InventoryScena
     }
 
     async performNavigateToProduct(productName: string): Promise<void> {
-        await this._page.getByText(productName, { exact: true }).click();
+        await this.clickText(productName);
         await this._page.waitForURL(/inventory-item\.html/);
+    }
+
+    async performLogout(): Promise<void> {
+        await this.click(InventoryLocator.burgerMenu);
+        await this.click(InventoryLocator.logoutLink);
+        await this._page.waitForURL(url => url.pathname === "/");
     }
 }

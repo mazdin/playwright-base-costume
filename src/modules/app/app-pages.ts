@@ -1,8 +1,8 @@
-import LoginPage from "./pages/login/login.page";
-import InventoryPage from "./pages/inventory/inventory.page";
-import ProductPage from "./pages/product/product.page";
-import CartPage from "./pages/cart/cart.page";
-import CheckoutPage from "./pages/checkout/checkout.page";
+import LoginPage from "@modules/app/pages/login/login.page";
+import InventoryPage from "@modules/app/pages/inventory/inventory.page";
+import ProductPage from "@modules/app/pages/product/product.page";
+import CartPage from "@modules/app/pages/cart/cart.page";
+import CheckoutPage from "@modules/app/pages/checkout/checkout.page";
 
 export type AppPages = {
     loginPage: LoginPage;

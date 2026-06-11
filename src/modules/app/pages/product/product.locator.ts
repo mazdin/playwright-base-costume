@@ -1,6 +1,4 @@
-import BaseLocator from "../../../../base/base-locator";
-
-export default class ProductLocator extends BaseLocator {
+export default class ProductLocator {
     static productName: string = '.inventory_details_name';
     static productDescription: string = '.inventory_details_desc';
     static productPrice: string = '.inventory_details_price';

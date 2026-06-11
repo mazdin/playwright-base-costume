@@ -1,9 +1,12 @@
 import { expect } from "@playwright/test";
-import { test as appTest } from "../injection";
+import { test, NO_AUTH_STATE } from "../injection";
 import { epic, feature, story, severity, description, tag, step } from "allure-js-commons";
+import { USERS } from "@data/users";
 
-appTest.describe("Security Feature", () => {
-    appTest("SEC-02 | Back Button setelah logout tidak bisa masuk kembali", async ({ loginPage, page }) => {
+test.use({ storageState: NO_AUTH_STATE });
+
+test.describe("Security Feature", () => {
+    test("SEC-02 | Back Button setelah logout tidak bisa masuk kembali", async ({ loginPage, inventoryPage, page }) => {
         await epic("SauceDemo");
         await feature("Security");
         await story("Back Button After Logout");
@@ -13,19 +16,17 @@ appTest.describe("Security Feature", () => {
 
         await step("Login dengan kredensial valid", async () => {
             await loginPage.navigateHere();
-            await loginPage.performLogin();
+            await loginPage.login(USERS.standard.username, USERS.standard.password);
+            await loginPage.expectLoginSuccess();
         });
 
         await step("Logout via burger menu", async () => {
-            await page.click('#react-burger-menu-btn');
-            await page.click('#logout_sidebar_link');
-            await page.waitForURL(/saucedemo\.com\/?$/);
+            await inventoryPage.performLogout();
         });
 
         await step("Klik back browser dan verifikasi tetap di login page", async () => {
             await page.goBack();
-            const currentUrl = page.url();
-            expect(currentUrl).not.toContain("inventory.html");
+            await expect(page).not.toHaveURL(/inventory\.html/);
         });
     });
 });

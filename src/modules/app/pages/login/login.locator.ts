@@ -1,6 +1,4 @@
-import BaseLocator from "../../../../base/base-locator";
-
-export default class LoginLocator extends BaseLocator {
+export default class LoginLocator {
     static inputUsername: string = '#user-name';
     static inputPassword: string = '#password';
     static buttonLogin: string = '#login-button';

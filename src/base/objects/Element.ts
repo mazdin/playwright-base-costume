@@ -1,12 +1,14 @@
 import BasePage from "../base-page";
+import BaseUrl from "../base-url";
+import BaseConfigs from "../base-configs";
 
 export default class Element {
-    selector?: string;
-    value?: string;
+    selector: string | null;
+    value: string | null;
     type: ElementType;
-    enabled: boolean;
+    enabled: boolean = true;
 
-    private constructor(selector: string, value: string, type: ElementType) {
+    private constructor(selector: string | null, value: string | null, type: ElementType) {
         this.selector = selector;
         this.value = value;
         this.type = type;
@@ -24,50 +26,44 @@ export default class Element {
         return new Element(null, text, ElementType.TEXT);
     }
 
-    static ofLink(text: string): Element {
-        return new Element(null, text, ElementType.LINK);
-    }
-
-    static ofButton(text: string, enabled: boolean = true) {
-        let e = new Element(null, text, ElementType.BUTTON);
+    static ofButton(text: string, enabled: boolean = true): Element {
+        const e = new Element(null, text, ElementType.BUTTON);
         e.enabled = enabled;
         return e;
     }
 
-    static ofButtonWithSelector(selector: string, text: string, enabled: boolean = true) {
-        let e = new Element(selector, text, ElementType.BUTTON_SELECTOR);
+    static ofButtonWithSelector(selector: string, text: string, enabled: boolean = true): Element {
+        const e = new Element(selector, text, ElementType.BUTTON_SELECTOR);
         e.enabled = enabled;
         return e;
     }
 
-    static ofInput(selector: string, text: string, enabled: boolean = true): Element {
-        let e = new Element(selector, text, ElementType.INPUT);
+    static ofInput(selector: string, value: string, enabled: boolean = true): Element {
+        const e = new Element(selector, value, ElementType.INPUT);
         e.enabled = enabled;
         return e;
     }
 
-    public validate(page: BasePage<any, any>): Promise<void> {
+    public validate(page: BasePage<BaseUrl, BaseConfigs>): Promise<void> {
         switch (this.type) {
             case ElementType.TEXT:
-                return page.expectTextVisible(this.value);
+                return page.expectTextVisible(this.value!);
             case ElementType.ELEMENT:
-                return page.expectVisible(this.selector);
-            case ElementType.KEY_VALUE:
-                return page.expectHasValue(this.selector, this.value);
-            case ElementType.BUTTON:
-                return page.expectHasButton(this.selector, this.value, this.enabled);
-            case ElementType.BUTTON_SELECTOR:
-                return page.expectVisible(this.selector)
-                    .then(_ => page.expectHasButtonWithID(this.selector, this.value, this.enabled));
             case ElementType.INPUT:
-                return page.expectVisible(this.selector);
-            case ElementType.LINK:
+                return page.expectVisible(this.selector!);
+            case ElementType.KEY_VALUE:
+                return page.expectHasValue(this.selector!, this.value!);
+            case ElementType.BUTTON:
+                return page.expectHasButton(this.value!, this.enabled);
+            case ElementType.BUTTON_SELECTOR:
+                return page.expectVisible(this.selector!)
+                    .then(() => page.expectHasButtonWithSelector(this.selector!, this.value!, this.enabled));
             default:
-                return new Promise<void>(resolve => resolve());
+                return Promise.resolve();
         }
     }
 }
 
 export enum ElementType {
-    TEXT, ELEMENT, KEY_VALUE, LINK, BUTTON, BUTTON_SELECTOR, INPUT
+    TEXT, ELEMENT, KEY_VALUE, BUTTON, BUTTON_SELECTOR, INPUT
 }

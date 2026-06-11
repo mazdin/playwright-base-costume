@@ -1,12 +1,12 @@
 import { test } from "../injection";
 import { epic, feature, story, severity, description, tag, step } from "allure-js-commons";
+import { PRODUCTS, SORT_EXPECTATIONS } from "@data/products";
 
 test.describe("Inventory Feature", () => {
-    test.beforeEach(async ({ loginPage }) => {
+    test.beforeEach(async ({ inventoryPage }) => {
         await epic("SauceDemo");
         await feature("Inventory");
-        await loginPage.navigateHere();
-        await loginPage.performLogin();
+        await inventoryPage.navigateHere();
     });
 
     test("INV-01 | Menambah produk ke keranjang", async ({ inventoryPage }) => {
@@ -15,7 +15,7 @@ test.describe("Inventory Feature", () => {
         await description("Verifikasi badge keranjang bertambah saat produk ditambahkan ke cart.");
         await tag("smoke");
 
-        await step("Klik Add to Cart pada Sauce Labs Backpack", async () => {
+        await step(`Klik Add to Cart pada ${PRODUCTS.backpack}`, async () => {
             await inventoryPage.performAddToCart();
         });
     });
@@ -34,7 +34,7 @@ test.describe("Inventory Feature", () => {
     test("INV-03 | Sortir Nama (Z to A)", async ({ inventoryPage }) => {
         await story("Sort Products");
         await severity("normal");
-        await description("Verifikasi produk pertama adalah 'Test.allTheThings() T-Shirt (Red)' setelah sort Z to A.");
+        await description(`Verifikasi produk pertama adalah '${SORT_EXPECTATIONS.firstNameZtoA}' setelah sort Z to A.`);
         await tag("sorting");
 
         await step("Pilih sort 'Name (Z to A)' dan verifikasi urutan produk", async () => {
@@ -45,7 +45,7 @@ test.describe("Inventory Feature", () => {
     test("INV-04 | Sortir Harga (Low to High)", async ({ inventoryPage }) => {
         await story("Sort Products");
         await severity("normal");
-        await description("Verifikasi produk pertama seharga $7.99 setelah sort Price Low to High.");
+        await description(`Verifikasi produk pertama seharga ${SORT_EXPECTATIONS.lowestPrice} setelah sort Price Low to High.`);
         await tag("sorting");
 
         await step("Pilih sort 'Price (low to high)' dan verifikasi harga pertama", async () => {

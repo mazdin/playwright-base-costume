@@ -1,5 +1,8 @@
-import { test } from "../injection";
+import { test, NO_AUTH_STATE } from "../injection";
 import { epic, feature, story, severity, description, tag, step } from "allure-js-commons";
+import { USERS, INVALID_PASSWORD, UPPERCASE_PASSWORD } from "@data/users";
+
+test.use({ storageState: NO_AUTH_STATE });
 
 test.describe("Login Feature", () => {
     test.beforeEach(async ({ loginPage }) => {
@@ -14,8 +17,11 @@ test.describe("Login Feature", () => {
         await description("Verifikasi user dapat login menggunakan kredensial yang valid (standard_user).");
         await tag("smoke");
 
-        await step("Masukkan username dan password valid, verifikasi redirect ke inventory", async () => {
-            await loginPage.performLogin();
+        await step("Masukkan username dan password valid", async () => {
+            await loginPage.login(USERS.standard.username, USERS.standard.password);
+        });
+        await step("Verifikasi redirect ke halaman inventory", async () => {
+            await loginPage.expectLoginSuccess();
         });
     });
 
@@ -25,8 +31,11 @@ test.describe("Login Feature", () => {
         await description("Verifikasi muncul error saat login dengan akun yang diblokir (locked_out_user).");
         await tag("negative");
 
-        await step("Login dengan locked_out_user dan verifikasi pesan error", async () => {
-            await loginPage.performLockedOutLogin();
+        await step("Login dengan locked_out_user", async () => {
+            await loginPage.login(USERS.lockedOut.username, USERS.lockedOut.password);
+        });
+        await step("Verifikasi pesan error user terblokir", async () => {
+            await loginPage.expectLoginError("Sorry, this user has been locked out.");
         });
     });
 
@@ -36,8 +45,11 @@ test.describe("Login Feature", () => {
         await description("Verifikasi muncul error saat login dengan password yang salah.");
         await tag("negative");
 
-        await step("Login dengan wrong_pass dan verifikasi pesan error", async () => {
-            await loginPage.performWrongLogin();
+        await step("Login dengan password salah", async () => {
+            await loginPage.login(USERS.standard.username, INVALID_PASSWORD);
+        });
+        await step("Verifikasi pesan error kredensial tidak cocok", async () => {
+            await loginPage.expectLoginError("Username and password do not match");
         });
     });
 
@@ -47,8 +59,11 @@ test.describe("Login Feature", () => {
         await description("Verifikasi muncul error 'Username is required' saat semua field dikosongkan.");
         await tag("boundary");
 
-        await step("Klik login tanpa mengisi field dan verifikasi pesan error", async () => {
-            await loginPage.performEmptyFieldsLogin();
+        await step("Klik login tanpa mengisi field", async () => {
+            await loginPage.login("", "");
+        });
+        await step("Verifikasi pesan error username wajib diisi", async () => {
+            await loginPage.expectLoginError("Username is required");
         });
     });
 
@@ -58,8 +73,11 @@ test.describe("Login Feature", () => {
         await description("Verifikasi login gagal saat password dimasukkan dengan huruf kapital semua (SECRET_SAUCE).");
         await tag("negative");
 
-        await step("Login dengan PASSWORD kapital dan verifikasi gagal", async () => {
-            await loginPage.performCaseSensitiveLogin();
+        await step("Login dengan password huruf kapital", async () => {
+            await loginPage.login(USERS.standard.username, UPPERCASE_PASSWORD);
+        });
+        await step("Verifikasi login gagal", async () => {
+            await loginPage.expectLoginError("Username and password do not match");
         });
     });
 });
