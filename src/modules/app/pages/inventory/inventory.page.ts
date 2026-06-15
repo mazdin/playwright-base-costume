@@ -9,10 +9,7 @@ export default class InventoryPage extends BaseAppPage implements InventoryScena
     pageUrl = (): string => this.urls.get.inventory.inventoryUrl;
 
     shouldHave(): Element[] {
-        return [
-            Element.ofSelector(InventoryLocator.inventoryList),
-            Element.ofSelector(InventoryLocator.sortDropdown),
-        ];
+        return [Element.ofSelector(InventoryLocator.inventoryList), Element.ofSelector(InventoryLocator.sortDropdown)];
     }
 
     async addItemToCart(): Promise<void> {
@@ -26,8 +23,8 @@ export default class InventoryPage extends BaseAppPage implements InventoryScena
 
     async performAddToCart(): Promise<void> {
         await this.addItemToCart();
-        await this.expectVisible(InventoryLocator.cartBadge);
-        await this.expectTextVisible("1", true);
+        // Assert langsung ke badge, bukan teks "1" di mana saja pada halaman
+        await expect(this.getLocator(InventoryLocator.cartBadge)).toHaveText("1");
     }
 
     async performRemoveFromCart(): Promise<void> {
@@ -38,15 +35,13 @@ export default class InventoryPage extends BaseAppPage implements InventoryScena
     }
 
     async performSortZtoA(): Promise<void> {
-        await this.selectOption(InventoryLocator.sortDropdown, 'za');
-        await expect(this.getLocator(InventoryLocator.itemName).first())
-            .toHaveText(SORT_EXPECTATIONS.firstNameZtoA);
+        await this.selectOption(InventoryLocator.sortDropdown, "za");
+        await expect(this.getLocator(InventoryLocator.itemName).first()).toHaveText(SORT_EXPECTATIONS.firstNameZtoA);
     }
 
     async performSortLowToHigh(): Promise<void> {
-        await this.selectOption(InventoryLocator.sortDropdown, 'lohi');
-        await expect(this.getLocator(InventoryLocator.itemPrice).first())
-            .toHaveText(SORT_EXPECTATIONS.lowestPrice);
+        await this.selectOption(InventoryLocator.sortDropdown, "lohi");
+        await expect(this.getLocator(InventoryLocator.itemPrice).first()).toHaveText(SORT_EXPECTATIONS.lowestPrice);
     }
 
     async performCheckProductImages(): Promise<void> {
@@ -74,6 +69,6 @@ export default class InventoryPage extends BaseAppPage implements InventoryScena
     async performLogout(): Promise<void> {
         await this.click(InventoryLocator.burgerMenu);
         await this.click(InventoryLocator.logoutLink);
-        await this._page.waitForURL(url => url.pathname === "/");
+        await this._page.waitForURL((url) => url.pathname === "/");
     }
 }

@@ -45,7 +45,9 @@ test.describe("Inventory Feature", () => {
     test("INV-04 | Sortir Harga (Low to High)", async ({ inventoryPage }) => {
         await story("Sort Products");
         await severity("normal");
-        await description(`Verifikasi produk pertama seharga ${SORT_EXPECTATIONS.lowestPrice} setelah sort Price Low to High.`);
+        await description(
+            `Verifikasi produk pertama seharga ${SORT_EXPECTATIONS.lowestPrice} setelah sort Price Low to High.`,
+        );
         await tag("sorting");
 
         await step("Pilih sort 'Price (low to high)' dan verifikasi harga pertama", async () => {

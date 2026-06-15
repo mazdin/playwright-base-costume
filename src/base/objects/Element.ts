@@ -56,7 +56,8 @@ export default class Element {
             case ElementType.BUTTON:
                 return page.expectHasButton(this.value!, this.enabled);
             case ElementType.BUTTON_SELECTOR:
-                return page.expectVisible(this.selector!)
+                return page
+                    .expectVisible(this.selector!)
                     .then(() => page.expectHasButtonWithSelector(this.selector!, this.value!, this.enabled));
             default:
                 return Promise.resolve();
@@ -65,5 +66,10 @@ export default class Element {
 }
 
 export enum ElementType {
-    TEXT, ELEMENT, KEY_VALUE, BUTTON, BUTTON_SELECTOR, INPUT
+    TEXT,
+    ELEMENT,
+    KEY_VALUE,
+    BUTTON,
+    BUTTON_SELECTOR,
+    INPUT,
 }

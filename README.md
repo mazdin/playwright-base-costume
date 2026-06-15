@@ -6,13 +6,14 @@ Automation testing untuk [SauceDemo](https://www.saucedemo.com) berbasis Playwri
 
 ## Tech Stack
 
-| Tool | Versi |
-|------|-------|
-| Node.js | v20.x |
-| Playwright | ^1.45 |
-| TypeScript | ^6.0 |
-| ESLint + eslint-plugin-playwright | ^10 / ^2 |
-| Allure | ^3.4 |
+| Tool                              | Versi     |
+| --------------------------------- | --------- |
+| Node.js                           | v20.x     |
+| Playwright                        | ^1.45     |
+| TypeScript                        | ^6.0      |
+| ESLint + eslint-plugin-playwright | ^10 / ^2  |
+| Prettier + husky + lint-staged    | ^3/^9/^15 |
+| Allure                            | ^3.4      |
 
 ---
 
@@ -65,12 +66,12 @@ AT_WEB_SAUCEDEMO_1/
 
 Import memakai alias, bukan relative path dalam:
 
-| Alias | Folder |
-|-------|--------|
-| `@base/*` | `src/base/*` |
+| Alias        | Folder          |
+| ------------ | --------------- |
+| `@base/*`    | `src/base/*`    |
 | `@configs/*` | `src/configs/*` |
 | `@modules/*` | `src/modules/*` |
-| `@data/*` | `src/data/*` |
+| `@data/*`    | `src/data/*`    |
 
 ### Autentikasi (storageState)
 
@@ -93,13 +94,18 @@ cp .env-example .env   # lalu sesuaikan bila perlu
 ## Menjalankan Test
 
 ```bash
-npm test                              # semua test
+npm test                              # semua test (chromium)
+npm run test:cross                    # cross-browser (chromium + firefox + webkit)
 npx playwright test tests/app/login/  # satu fitur
 npm run test:headed                   # buka browser
 npm run test:ui                       # UI mode
 npm run typecheck                     # cek tipe TypeScript
 npm run lint                          # ESLint
+npm run format                        # rapikan kode dengan Prettier
+npm run format:check                  # cek format (dipakai di CI)
 ```
+
+> Cross-browser di-opt-in lewat env `CROSS_BROWSER=true` agar `npm test` default tetap cepat. Versi Node kanonik di-pin pada **20** (`.nvmrc`). Pre-commit hook (husky + lint-staged) otomatis menjalankan Prettier & ESLint pada file yang di-stage.
 
 ## Report
 
@@ -117,8 +123,8 @@ npm run allure:serve    # Allure report
 ```typescript
 // src/modules/app/pages/namaPage/namaPage.locator.ts
 export default class NamaPageLocator {
-    static buttonSave: string = '#btn-save';
-    static inputName: string = '#name';
+    static buttonSave: string = "#btn-save";
+    static inputName: string = "#name";
 }
 ```
 
@@ -146,10 +152,7 @@ export default class NamaPage extends BaseAppPage implements NamaPageScenario {
     pageUrl = (): string => this.urls.get.namaPage.url;
 
     shouldHave(): Element[] {
-        return [
-            Element.ofButton("Simpan"),
-            Element.ofSelector(NamaPageLocator.inputName),
-        ];
+        return [Element.ofButton("Simpan"), Element.ofSelector(NamaPageLocator.inputName)];
     }
 
     async performSave(): Promise<void> {
@@ -164,7 +167,7 @@ export default class NamaPage extends BaseAppPage implements NamaPageScenario {
 // src/modules/app/app-pages.ts
 export type AppPages = {
     loginPage: LoginPage;
-    namaPage: NamaPage;   // tambahkan ini
+    namaPage: NamaPage; // tambahkan ini
 };
 
 // tests/app/injection.ts
@@ -192,11 +195,11 @@ test.describe("Nama Page Feature", () => {
 
 ## Element Validation Methods
 
-| Method | Kegunaan |
-|--------|----------|
-| `Element.ofText("teks")` | Cek teks tampil di halaman |
-| `Element.ofSelector("#id")` | Cek element visible |
-| `Element.of("#input", "value")` | Cek input memiliki value |
-| `Element.ofButton("Simpan")` | Cek button enabled |
-| `Element.ofButton("Simpan", false)` | Cek button disabled |
-| `Element.ofInput("#input", "")` | Cek input visible |
+| Method                              | Kegunaan                   |
+| ----------------------------------- | -------------------------- |
+| `Element.ofText("teks")`            | Cek teks tampil di halaman |
+| `Element.ofSelector("#id")`         | Cek element visible        |
+| `Element.of("#input", "value")`     | Cek input memiliki value   |
+| `Element.ofButton("Simpan")`        | Cek button enabled         |
+| `Element.ofButton("Simpan", false)` | Cek button disabled        |
+| `Element.ofInput("#input", "")`     | Cek input visible          |

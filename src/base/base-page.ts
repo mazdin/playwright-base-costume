@@ -88,7 +88,7 @@ export default abstract class BasePage<T extends BaseUrl, U extends BaseConfigs>
     }
 
     public pressKeyboard(...keys: Keyboard[]): Promise<void> {
-        return this._page.keyboard.press(keys.map(key => `${key}`).join("+"));
+        return this._page.keyboard.press(keys.map((key) => `${key}`).join("+"));
     }
 
     // ------------------------------------------------------------------
@@ -97,37 +97,44 @@ export default abstract class BasePage<T extends BaseUrl, U extends BaseConfigs>
 
     public expectVisible(selector: string, timeout: number = this.ELEMENT_TIMEOUT): Promise<void> {
         return this.step(`expect visible: ${selector}`, () =>
-            expect(this._page.locator(selector)).toBeVisible({ timeout }));
+            expect(this._page.locator(selector)).toBeVisible({ timeout }),
+        );
     }
 
     public expectInvisible(selector: string, timeout: number = this.ELEMENT_TIMEOUT): Promise<void> {
         return this.step(`expect hidden: ${selector}`, () =>
-            expect(this._page.locator(selector)).toBeHidden({ timeout }));
+            expect(this._page.locator(selector)).toBeHidden({ timeout }),
+        );
     }
 
     public expectEnabled(selector: string): Promise<void> {
-        return this.step(`expect enabled: ${selector}`, () =>
-            expect(this._page.locator(selector)).toBeEnabled());
+        return this.step(`expect enabled: ${selector}`, () => expect(this._page.locator(selector)).toBeEnabled());
     }
 
     public expectDisabled(selector: string): Promise<void> {
-        return this.step(`expect disabled: ${selector}`, () =>
-            expect(this._page.locator(selector)).toBeDisabled());
+        return this.step(`expect disabled: ${selector}`, () => expect(this._page.locator(selector)).toBeDisabled());
     }
 
-    public expectTextVisible(text: string, exact: boolean = false, timeout: number = this.ELEMENT_TIMEOUT): Promise<void> {
+    public expectTextVisible(
+        text: string,
+        exact: boolean = false,
+        timeout: number = this.ELEMENT_TIMEOUT,
+    ): Promise<void> {
         return this.step(`expect text visible: "${text}"`, () =>
-            expect(this._page.getByText(text, { exact })).toBeVisible({ timeout }));
+            expect(this._page.getByText(text, { exact })).toBeVisible({ timeout }),
+        );
     }
 
     public expectTextInvisible(text: string, exact: boolean = false): Promise<void> {
         return this.step(`expect text hidden: "${text}"`, () =>
-            expect(this._page.getByText(text, { exact })).toBeHidden());
+            expect(this._page.getByText(text, { exact })).toBeHidden(),
+        );
     }
 
     public expectHasValue(selector: string, value: string): Promise<void> {
         return this.step(`expect ${selector} has value "${value}"`, () =>
-            expect(this._page.locator(selector)).toHaveValue(value));
+            expect(this._page.locator(selector)).toHaveValue(value),
+        );
     }
 
     public expectEmpty(selector: string): Promise<void> {
@@ -150,7 +157,8 @@ export default abstract class BasePage<T extends BaseUrl, U extends BaseConfigs>
 
     public expectHasOneElement(selector: string): Promise<void> {
         return this.step(`expect exactly one element: ${selector}`, () =>
-            expect(this._page.locator(selector)).toHaveCount(1));
+            expect(this._page.locator(selector)).toHaveCount(1),
+        );
     }
 
     public async expectHasElements(selector: string): Promise<void> {
@@ -160,8 +168,7 @@ export default abstract class BasePage<T extends BaseUrl, U extends BaseConfigs>
     }
 
     public expectHasEmptyElement(selector: string): Promise<void> {
-        return this.step(`expect no element: ${selector}`, () =>
-            expect(this._page.locator(selector)).toHaveCount(0));
+        return this.step(`expect no element: ${selector}`, () => expect(this._page.locator(selector)).toHaveCount(0));
     }
 
     // ------------------------------------------------------------------
@@ -195,7 +202,8 @@ export default abstract class BasePage<T extends BaseUrl, U extends BaseConfigs>
 
     protected waitForUrl(urlOrPredicate: string, timeout: number = this.NAVIGATION_TIMEOUT): Promise<void> {
         return this.step(`wait for url: ${urlOrPredicate}`, () =>
-            this._page.waitForURL(new RegExp("\\b" + urlOrPredicate + "\\b"), { timeout }));
+            this._page.waitForURL(new RegExp("\\b" + urlOrPredicate + "\\b"), { timeout }),
+        );
     }
 
     public getInputValue(selector: string): Promise<string> {

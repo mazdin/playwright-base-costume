@@ -10,9 +10,9 @@ export default class CheckoutPage extends BaseAppPage implements CheckoutScenari
 
     shouldHave(): Element[] {
         return [
-            Element.ofInput(CheckoutLocator.firstNameInput, ''),
-            Element.ofInput(CheckoutLocator.lastNameInput, ''),
-            Element.ofInput(CheckoutLocator.postalCodeInput, ''),
+            Element.ofInput(CheckoutLocator.firstNameInput, ""),
+            Element.ofInput(CheckoutLocator.lastNameInput, ""),
+            Element.ofInput(CheckoutLocator.postalCodeInput, ""),
             Element.ofSelector(CheckoutLocator.continueButton),
         ];
     }
@@ -32,13 +32,26 @@ export default class CheckoutPage extends BaseAppPage implements CheckoutScenari
     }
 
     async performVerifyTax(): Promise<void> {
-        const subtotalText = await this.getTextValue(CheckoutLocator.subtotalLabel);
-        const taxText = await this.getTextValue(CheckoutLocator.taxLabel);
-
-        const subtotal = parseFloat(subtotalText.replace(/[^0-9.]/g, ''));
-        const tax = parseFloat(taxText.replace(/[^0-9.]/g, ''));
+        const subtotal = await this.readAmount(CheckoutLocator.subtotalLabel);
+        const tax = await this.readAmount(CheckoutLocator.taxLabel);
+        const total = await this.readAmount(CheckoutLocator.totalLabel);
 
         const expectedTax = Math.round(subtotal * TAX_RATE * 100) / 100;
-        expect(tax).toBeCloseTo(expectedTax, 1);
+        expect(tax).toBeCloseTo(expectedTax, 2);
+        // Total yang dilihat user harus = subtotal + tax
+        expect(total).toBeCloseTo(subtotal + tax, 2);
+    }
+
+    async performFinishOrder(): Promise<void> {
+        await this.click(CheckoutLocator.finishButton);
+        await this.waitForUrl(this.urls.get.checkoutComplete.checkoutCompleteUrl);
+        await this.expectVisible(CheckoutLocator.completeHeader);
+        await this.expectTextVisible("Thank you for your order!");
+    }
+
+    /** Baca label uang (mis. "Item total: $29.99") menjadi angka. */
+    private async readAmount(selector: string): Promise<number> {
+        const text = await this.getTextValue(selector);
+        return parseFloat(text.replace(/[^0-9.]/g, ""));
     }
 }

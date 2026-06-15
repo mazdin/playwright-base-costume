@@ -6,12 +6,32 @@ import { USERS } from "@data/users";
 test.use({ storageState: NO_AUTH_STATE });
 
 test.describe("Security Feature", () => {
+    test("SEC-01 | Akses langsung URL inventory tanpa login", async ({ loginPage }) => {
+        await epic("SauceDemo");
+        await feature("Security");
+        await story("Direct URL Access Without Auth");
+        await severity("critical");
+        await description(
+            "Verifikasi user tidak bisa membuka /inventory.html secara langsung tanpa login (harus muncul error & tetap di login page).",
+        );
+        await tag("security");
+
+        await step("Buka login page", async () => {
+            await loginPage.navigateHere();
+        });
+        await step("Akses langsung URL inventory dan verifikasi ditolak", async () => {
+            await loginPage.expectInventoryAccessBlocked();
+        });
+    });
+
     test("SEC-02 | Back Button setelah logout tidak bisa masuk kembali", async ({ loginPage, inventoryPage, page }) => {
         await epic("SauceDemo");
         await feature("Security");
         await story("Back Button After Logout");
         await severity("critical");
-        await description("Verifikasi user tidak bisa kembali ke halaman inventory setelah logout menggunakan tombol back browser.");
+        await description(
+            "Verifikasi user tidak bisa kembali ke halaman inventory setelah logout menggunakan tombol back browser.",
+        );
         await tag("security");
 
         await step("Login dengan kredensial valid", async () => {

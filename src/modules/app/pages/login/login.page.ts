@@ -8,8 +8,8 @@ export default class LoginPage extends BaseAppPage implements LoginScenario {
 
     shouldHave(): Element[] {
         return [
-            Element.ofInput(LoginLocator.inputUsername, ''),
-            Element.ofInput(LoginLocator.inputPassword, ''),
+            Element.ofInput(LoginLocator.inputUsername, ""),
+            Element.ofInput(LoginLocator.inputPassword, ""),
             Element.ofSelector(LoginLocator.buttonLogin),
         ];
     }
@@ -22,10 +22,20 @@ export default class LoginPage extends BaseAppPage implements LoginScenario {
 
     async expectLoginSuccess(): Promise<void> {
         await this.waitForUrl(this.urls.get.inventory.inventoryUrl);
+        // Tidak cukup hanya URL — pastikan halaman inventory benar-benar ter-render
+        await this.expectVisible(LoginLocator.inventoryListAfterLogin);
     }
 
     async expectLoginError(message: string): Promise<void> {
         await this.expectVisible(LoginLocator.errorMessage);
         await this.expectTextVisible(message);
+    }
+
+    /** Akses langsung URL inventory tanpa login harus ditolak (tetap di login + error). */
+    async expectInventoryAccessBlocked(): Promise<void> {
+        await this.navigateTo(this.urls.get.inventory.inventoryUrl);
+        await this.expectVisible(LoginLocator.errorMessage);
+        await this.expectTextVisible("You can only access");
+        await this.expectInvisible(LoginLocator.inventoryListAfterLogin);
     }
 }

@@ -6,5 +6,5 @@ export enum Keyboard {
     ARROW_RIGHT = "ArrowRight",
     SHIFT = "Shift",
     BACKSPACE = "Backspace",
-    PAGE_DOWN = "PageDown"
+    PAGE_DOWN = "PageDown",
 }
